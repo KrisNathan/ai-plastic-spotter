@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+datasets/
+runs/
+
+yolov8n-cls.pt

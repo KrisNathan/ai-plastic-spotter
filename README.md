@@ -4,6 +4,8 @@ Stored using git-lfs
 
 ### RealWaste
 
+https://archive.ics.uci.edu/static/public/908/realwaste.zip
+
 S. Single, S. Iranmanesh, and R. Raad. "RealWaste," UCI Machine Learning Repository, 2023. [Online]. Available: https://doi.org/10.24432/C5SS4G.
 
 The dataset is composed of the following labels and image counts:
