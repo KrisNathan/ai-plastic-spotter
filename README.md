@@ -64,7 +64,7 @@ GEMINI_API_KEY=your_actual_api_key_here
 Start the backend server:
 
 ```bash
-uv run uvicorn main:app --reload
+uv run python -m uvicorn main:app --reload
 ```
 
 The server will start at `http://127.0.0.1:8000`.
