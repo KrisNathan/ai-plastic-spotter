@@ -2,6 +2,12 @@
 
 Stored using git-lfs
 
+### BePLi Dataset v1: Beach Plastic Litter Dataset version 1
+
+https://www.seanoe.org/data/00811/92297/
+
+Mitsuko Hidaka, Koshiro Murakami, Kenta Koshidawa, Shintaro Kawahara, Daisuke Sugiyama, Shin’ichiro Kako, Daisuke Matsuoka (2023). BePLi Dataset v1: Beach Plastic Litter Dataset version 1. SEANOE. https://doi.org/10.17882/92297
+
 ### RealWaste
 
 https://archive.ics.uci.edu/static/public/908/realwaste.zip
