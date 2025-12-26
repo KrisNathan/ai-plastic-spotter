@@ -13,6 +13,7 @@ datasets/
 runs/
 
 yolov8n-cls.pt
+yolo11n-cls.pt
 
 yolov8n.pt
 plastic_coco/
