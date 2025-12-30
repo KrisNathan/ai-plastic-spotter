@@ -16,5 +16,8 @@ yolov8n-cls.pt
 yolo11n-cls.pt
 
 yolov8n.pt
+yolo11n.pt
 plastic_coco/
 plastic_project/
+
+BePLi_dataset_v2/
