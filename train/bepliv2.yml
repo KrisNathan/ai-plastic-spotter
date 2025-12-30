@@ -1,0 +1,21 @@
+path: ./plastic_coco  # Base dataset path (relative to where you run the train command)
+train: images/train   # Train images
+val: images/val       # Val images
+test: images/test     # Test images
+
+# Classes
+names:
+  0: pet_bottle
+  1: other_bottle
+  2: plastic_bag
+  3: box_shaped_case
+  4: other_container
+  5: rope
+  6: other_string
+  7: fishing_net
+  8: buoy
+  9: other_fishing_gear
+  10: styrene_foam
+  11: others
+  12: fragments
+  
