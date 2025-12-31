@@ -12,8 +12,7 @@ wheels/
 datasets/
 runs/
 
-yolov8n-cls.pt
-yolo11n-cls.pt
+*.pt
 
 yolov8n.pt
 yolo11n.pt
