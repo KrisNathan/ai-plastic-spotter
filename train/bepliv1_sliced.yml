@@ -1,0 +1,8 @@
+path: plastic_sliced_dataset  # Base directory relative to where you run the training command
+train: images/train
+val: images/val
+test: images/test
+
+# BePLi classes (Adjust if you know you have more, but usually it's just 1 for plastic)
+names:
+  0: plastic_litter

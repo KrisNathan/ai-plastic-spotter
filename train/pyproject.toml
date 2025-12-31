@@ -11,6 +11,7 @@ dependencies = [
     "torch>=2.9.1",
     "torchvision>=0.24.1",
     "pytorch-triton-xpu>=3.5.0 ; sys_platform == 'linux'",
+    "sahi>=0.11.36",
 ]
 
 # I intended to use extra as markers, but it doesn't work as intended...
