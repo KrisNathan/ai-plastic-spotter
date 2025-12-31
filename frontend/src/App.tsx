@@ -153,7 +153,7 @@ function App() {
                   Detecting...
                 </span>
               ) : (
-                'Find Plastic 🔍'
+                'Spot Plastic 🔍'
               )}
             </button>
           </div>
