@@ -1,9 +1,11 @@
 import os
 import shutil
+import base64
+import cv2
+import numpy as np
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
-import google.generativeai as genai
 from pathlib import Path
 import tempfile
 from dotenv import load_dotenv
@@ -22,18 +24,11 @@ app.add_middleware(
 )
 
 # Load YOLO model
-MODEL_PATH = Path("model.pt")
+MODEL_PATH = Path("best.pt")
 if not MODEL_PATH.exists():
-    raise RuntimeError("Model file not found at backend/model.pt")
+    raise RuntimeError("Model file not found at backend/best.pt")
 
 model = YOLO(MODEL_PATH)
-
-# Gemini setup
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-else:
-    print("Warning: GEMINI_API_KEY not set. Gemini features will fail.")
 
 @app.post("/analyze")
 async def analyze_image(file: UploadFile = File(...)):
@@ -43,70 +38,35 @@ async def analyze_image(file: UploadFile = File(...)):
         tmp_path = tmp.name
 
     try:
-        # 1. Run YOLO Inference
-        results = model(tmp_path)
+        results = model(tmp_path, conf=0.1)
         
-        # Get the top prediction
-        probs = results[0].probs
-        top1_index = probs.top1
-        predicted_class = results[0].names[top1_index]
-        confidence = probs.top1conf.item()
-
-        print(f"Detected: {predicted_class} ({confidence:.2f})")
-
-        # 2. Call Gemini API
-        gemini_response = {"description": "Gemini API Key missing", "action": "N/A"}
+        result = results[0]
         
-        if GEMINI_API_KEY:
-            try:
-                generation_config = {
-                    "temperature": 0.7,
-                    "top_p": 0.95,
-                    "top_k": 40,
-                    "max_output_tokens": 8192,
-                    "response_mime_type": "application/json",
-                }
-                model_gemini = genai.GenerativeModel(
-                    model_name="gemini-2.5-flash-lite",
-                    generation_config=generation_config,
-                )
-                
-                prompt = f"""
-                I have identified a piece of trash as '{predicted_class}'.
-                Please provide a structured JSON response with two fields:
-                1. "description": A brief, interesting fact about this type of waste (max 2 sentences).
-                2. "action": Specific instructions on how to properly dispose of or recycle this category of waste.
-                
-                Output JSON only.
-                """
-                
-                response = model_gemini.generate_content(prompt)
-                gemini_response = response.text
-                # Clean up json string if needed (sometimes it includes ```json ... ```)
-                if gemini_response.startswith("```json"):
-                    gemini_response = gemini_response[7:-3]
-                
-                import json
-                gemini_response = json.loads(gemini_response)
-
-            except Exception as e:
-                print(f"Gemini Error: {e}")
-                # Return a cleaner error for the UI
-                gemini_response = {
-                    "description": "Could not retrieve info from Gemini (Rate Limit or Model Error).",
-                    "action": "Please try again in a few moments."
-                }
+        plastic_count = len(result.boxes)
+        
+        im_bgr = cv2.imread(tmp_path)
+        
+        for box in result.boxes:
+            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
+            cv2.rectangle(im_bgr, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            
+            cls = int(box.cls[0])
+            label = result.names[cls]
+            cv2.putText(im_bgr, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+        
+        # Encode image to base64
+        _, buffer = cv2.imencode('.png', im_bgr)
+        png_as_text = base64.b64encode(buffer).decode('utf-8')
+        base64_image = f"data:image/png;base64,{png_as_text}"
 
         return {
-            "label": predicted_class,
-            "confidence": confidence,
-            "gemini": gemini_response
+            "count": plastic_count,
+            "image": base64_image
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        # Cleanup temp file
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
 

@@ -1,12 +1,8 @@
 import React, { useState, useCallback } from 'react';
 
 interface AnalysisResult {
-  label: string;
-  confidence: number;
-  gemini: {
-    description: string;
-    action: string;
-  };
+  count: number;
+  image: string;
 }
 
 const analyzeImage = async (file: File): Promise<AnalysisResult> => {
@@ -81,7 +77,7 @@ function App() {
             AI Plastic Spotter
           </h1>
           <p className="text-lg text-blue-100/80 font-light tracking-wide">
-            Identify trash & learn how to recycle it instantly.
+            Detect plastic pollution instantly.
           </p>
         </div>
 
@@ -102,25 +98,28 @@ function App() {
           />
 
           {preview ? (
-            <div className="relative z-10">
+            <div className="relative z-10 w-full">
               <img
                 src={preview}
                 alt="Preview"
                 className="max-h-80 mx-auto rounded-xl shadow-2xl ring-4 ring-white/10"
               />
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setFile(null);
-                  setPreview(null);
-                  setResult(null);
-                }}
-                className="absolute -top-4 -right-4 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition shadow-lg hover:scale-110"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
+
+              {!result && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFile(null);
+                    setPreview(null);
+                    setResult(null);
+                  }}
+                  className="absolute -top-4 -right-4 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition shadow-lg hover:scale-110"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              )}
             </div>
           ) : (
             <label htmlFor="fileInput" className="cursor-pointer block h-full z-10 relative">
@@ -151,10 +150,10 @@ function App() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Analyzing...
+                  Detecting...
                 </span>
               ) : (
-                'Identify Trash 🔍'
+                'Find Plastic 🔍'
               )}
             </button>
           </div>
@@ -168,30 +167,21 @@ function App() {
 
         {result && (
           <div className="mt-10 animate-fade-in space-y-6">
-            <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-3xl font-bold text-white tracking-tight">
-                  {result.label}
-                </h2>
-                <span className="px-4 py-1.5 bg-green-500/20 text-green-300 rounded-full text-sm font-bold border border-green-500/30">
-                  {(result.confidence * 100).toFixed(1)}% Match
-                </span>
+            <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10 text-center">
+              <h2 className="text-3xl font-bold text-white tracking-tight mb-6">
+                Detection Complete
+              </h2>
+
+              <div className="rounded-xl overflow-hidden shadow-2xl ring-4 ring-green-500/50 bg-black/50 mb-6">
+                <img
+                  src={result.image}
+                  alt="Analyzed Result"
+                  className="w-full object-contain max-h-[500px]"
+                />
               </div>
 
-              <div className="grid gap-4">
-                <div className="p-5 bg-blue-900/30 rounded-xl border border-blue-500/30 hover:bg-blue-900/40 transition-colors">
-                  <h3 className="font-bold text-blue-300 mb-2 flex items-center gap-2">
-                    <span>💡</span> Did you know?
-                  </h3>
-                  <p className="text-blue-100 leading-relaxed max-h-40 overflow-y-auto custom-scrollbar">{result.gemini.description}</p>
-                </div>
-
-                <div className="p-5 bg-green-900/30 rounded-xl border border-green-500/30 hover:bg-green-900/40 transition-colors">
-                  <h3 className="font-bold text-green-300 mb-2 flex items-center gap-2">
-                    <span>♻️</span> Action Plan
-                  </h3>
-                  <p className="text-green-100 leading-relaxed max-h-40 overflow-y-auto custom-scrollbar">{result.gemini.action}</p>
-                </div>
+              <div className="inline-block px-6 py-2 bg-purple-500/20 text-purple-300 rounded-full text-xl font-bold border border-purple-500/30">
+                Plastic Count: {result.count}
               </div>
             </div>
 
