@@ -15,6 +15,7 @@ runs/
 *.pt
 
 plastic_coco/
+plastic_sliced_coco/
 plastic_sliced_yolo/
 plastic_project/
 
