@@ -12,6 +12,8 @@ dependencies = [
     "torchvision>=0.24.1",
     "pytorch-triton-xpu>=3.5.0 ; sys_platform == 'linux'",
     "sahi>=0.11.36",
+    "pycocotools>=2.0.11",
+    "opencv-python>=4.11.0.86",
 ]
 
 # I intended to use extra as markers, but it doesn't work as intended...

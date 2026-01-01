@@ -14,9 +14,8 @@ runs/
 
 *.pt
 
-yolov8n.pt
-yolo11n.pt
 plastic_coco/
+plastic_sliced_yolo/
 plastic_project/
 
 BePLi_dataset_v2/
