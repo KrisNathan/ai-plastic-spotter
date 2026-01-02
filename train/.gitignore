@@ -19,4 +19,5 @@ plastic_sliced_coco/
 plastic_sliced_yolo/
 plastic_project/
 
-BePLi_dataset_v2/
+*.tar.gz
+*.tar.zst
