@@ -18,6 +18,8 @@ beach_negatives/
 plastic_coco/
 plastic_sliced_coco/
 plastic_sliced_yolo/
+plastic_seg_yolo/
+
 plastic_project/
 
 *.tar.gz

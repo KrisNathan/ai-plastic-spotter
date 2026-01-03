@@ -1,0 +1,8 @@
+path: ./plastic_seg_yolo  # Base dataset path (relative to where you run the train command)
+train: images/train   # Train images
+val: images/val       # Val images
+test: images/test     # Test images
+
+# Classes
+names:
+  0: plastic_litter
