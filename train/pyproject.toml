@@ -14,6 +14,8 @@ dependencies = [
     "sahi>=0.11.36",
     "pycocotools>=2.0.11",
     "opencv-python>=4.11.0.86",
+    "tqdm>=4.67.1",
+    "ipywidgets>=8.1.8",
 ]
 
 # I intended to use extra as markers, but it doesn't work as intended...

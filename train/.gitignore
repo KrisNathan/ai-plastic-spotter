@@ -15,9 +15,10 @@ runs/
 *.pt
 
 beach_negatives/
+beach_negatives_downsampled/
 plastic_coco/
-plastic_sliced_coco/
-plastic_sliced_yolo/
+plastic_seg_sliced_coco/
+plastic_seg_sliced_yolo/
 plastic_seg_yolo/
 
 plastic_project/
