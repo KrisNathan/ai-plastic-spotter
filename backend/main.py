@@ -25,7 +25,7 @@ app.add_middleware(
 )
 
 # Load YOLO model
-MODEL_PATH = Path("bester.pt")
+MODEL_PATH = Path("best.pt")
 if not MODEL_PATH.exists():
     raise RuntimeError("Model file not found at backend/bester.pt")
 
