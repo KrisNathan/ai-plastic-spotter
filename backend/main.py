@@ -5,7 +5,8 @@ import cv2
 import numpy as np
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from ultralytics import YOLO
+from sahi import AutoDetectionModel
+from sahi.predict import get_sliced_prediction
 from pathlib import Path
 import tempfile
 from dotenv import load_dotenv
@@ -28,36 +29,52 @@ MODEL_PATH = Path("bester.pt")
 if not MODEL_PATH.exists():
     raise RuntimeError("Model file not found at backend/bester.pt")
 
-model = YOLO(MODEL_PATH)
+detection_model = AutoDetectionModel.from_pretrained(
+    model_type='yolo11', 
+    model_path=str(MODEL_PATH),
+    confidence_threshold=0.6, 
+    device="cuda"  
+)
 
 @app.post("/analyze")
 async def analyze_image(file: UploadFile = File(...)):
-    # Save uploaded file temporarily
+    # save uploaded file 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name
 
     try:
-        results = model(tmp_path, conf=0.1)
+        # sliced Prediction
+        result = get_sliced_prediction(
+            tmp_path,
+            detection_model,
+            slice_height=640,
+            slice_width=640,
+            overlap_height_ratio=0.2,
+            overlap_width_ratio=0.2
+        )
         
-        result = results[0]
+        plastic_count = len(result.object_prediction_list)
         
-        plastic_count = len(result.boxes)
-        
-        im_bgr = cv2.imread(tmp_path)
-        
-        for box in result.boxes:
-            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
-            cv2.rectangle(im_bgr, (x1, y1), (x2, y2), (0, 0, 255), 2)
+        # save 
+        # export the visualization to a real file first.
+        # use temp dir for output to avoid cluttering main folder
+        with tempfile.TemporaryDirectory() as output_dir:
+            stem = Path(tmp_path).stem
+            result.export_visuals(export_dir=output_dir, file_name=stem)
             
-            cls = int(box.cls[0])
-            label = result.names[cls]
-            cv2.putText(im_bgr, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
-        
-        # Encode image to base64
-        _, buffer = cv2.imencode('.png', im_bgr)
-        png_as_text = base64.b64encode(buffer).decode('utf-8')
-        base64_image = f"data:image/png;base64,{png_as_text}"
+            saved_file_path = os.path.join(output_dir, stem + ".png")
+            
+            if os.path.exists(saved_file_path):
+                 with open(saved_file_path, "rb") as image_file:
+                    png_as_text = base64.b64encode(image_file.read()).decode('utf-8')
+                    base64_image = f"data:image/png;base64,{png_as_text}"
+            else:
+                 with open(tmp_path, "rb") as image_file:
+                     im_bgr = cv2.imread(tmp_path)
+                     _, buffer = cv2.imencode('.png', im_bgr)
+                     png_as_text = base64.b64encode(buffer).decode('utf-8')
+                     base64_image = f"data:image/png;base64,{png_as_text}"
 
         return {
             "count": plastic_count,
