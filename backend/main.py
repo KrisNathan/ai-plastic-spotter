@@ -32,7 +32,7 @@ if not MODEL_PATH.exists():
 detection_model = AutoDetectionModel.from_pretrained(
     model_type='yolo11', 
     model_path=str(MODEL_PATH),
-    confidence_threshold=0.6, 
+    confidence_threshold=0.4, 
     device="cuda"  
 )
 

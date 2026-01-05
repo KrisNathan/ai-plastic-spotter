@@ -34,13 +34,13 @@ A full-stack web application that uses AI to identify trash and provide recyclin
 
 ## 🌟 Features
 
--   **Instant Identification**: Uses a custom-trained YOLOv8 model to classify waste into categories (Plastic, Glass, Metal, etc.).
+-   **Instant Identification**: Uses a custom-trained YOLO11 model with SAHI (Slicing Aided Hyper Inference) to detect even small waste items with high accuracy.
 -   **Smart Recycling Advice**: Integrates with Google's Gemini 2.5 Flash Lite to generate specific disposal instructions and interesting facts.
 -   **Modern UI**: Features a premium, dark-themed drag-and-drop interface built with React and Tailwind CSS v4.
 
 ## 🛠️ Tech Stack
 
--   **Backend**: FastAPI, Python, Ultralytics YOLO, Google Generative AI
+-   **Backend**: FastAPI, Python, Ultralytics YOLO11, SAHI
 -   **Frontend**: React, TypeScript, Vite, Tailwind CSS
 -   **Package Managers**: `uv` (Python), `npm` (Node.js)
 
@@ -88,6 +88,6 @@ Open your browser to `http://localhost:5173` to use the app!
 
 ## 📁 Project Structure
 
--   `backend/`: FastAPI application, YOLO model (`model.pt`), and logic.
+-   `backend/`: FastAPI application, YOLO model, and logic.
 -   `frontend/`: React application with Tailwind styling.
 -   `ai-plastic-spotter/`: Original model training notebooks and data (reference).
