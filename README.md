@@ -61,12 +61,6 @@ cd backend
 # The dependencies will be automatically installed when you run the app
 ```
 
-Create a `.env` file in the `backend/` directory:
-
-```env
-GEMINI_API_KEY=your_actual_api_key_here
-```
-
 Start the backend server:
 
 ```bash
