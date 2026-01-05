@@ -61,7 +61,12 @@ async def analyze_image(file: UploadFile = File(...)):
         # use temp dir for output to avoid cluttering main folder
         with tempfile.TemporaryDirectory() as output_dir:
             stem = Path(tmp_path).stem
-            result.export_visuals(export_dir=output_dir, file_name=stem)
+            result.export_visuals(
+                export_dir=output_dir, 
+                file_name=stem, 
+                hide_labels=True, 
+                hide_conf=True
+            )
             
             saved_file_path = os.path.join(output_dir, stem + ".png")
             
