@@ -27,7 +27,8 @@ app.add_middleware(
 # Load YOLO model
 MODEL_PATH = Path("best.pt")
 if not MODEL_PATH.exists():
-    raise RuntimeError("Model file not found at backend/bester.pt")
+    raise RuntimeError("Model file not found at backend/best.pt")
+    # best is v1_11l_e75_sz1440_b16; bester is 11l-seg-sliced-640-p2
 
 detection_model = AutoDetectionModel.from_pretrained(
     model_type='yolo11', 
@@ -48,8 +49,8 @@ async def analyze_image(file: UploadFile = File(...)):
         result = get_sliced_prediction(
             tmp_path,
             detection_model,
-            slice_height=640,
-            slice_width=640,
+            slice_height=1440,
+            slice_width=1440,
             overlap_height_ratio=0.2,
             overlap_width_ratio=0.2
         )
