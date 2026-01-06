@@ -35,7 +35,6 @@ A full-stack web application that uses AI to identify trash and provide recyclin
 ## 🌟 Features
 
 -   **Instant Identification**: Uses a custom-trained YOLO11 model with SAHI (Slicing Aided Hyper Inference) to detect even small waste items with high accuracy.
--   **Smart Recycling Advice**: Integrates with Google's Gemini 2.5 Flash Lite to generate specific disposal instructions and interesting facts.
 -   **Modern UI**: Features a premium, dark-themed drag-and-drop interface built with React and Tailwind CSS v4.
 
 ## 🛠️ Tech Stack
@@ -50,7 +49,6 @@ A full-stack web application that uses AI to identify trash and provide recyclin
 
 -   Python 3.8+
 -   Node.js 18+
--   A Google Gemini API Key
 
 ### 1. Backend Setup
 
