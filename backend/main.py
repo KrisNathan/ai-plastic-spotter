@@ -2,7 +2,6 @@ import os
 import shutil
 import base64
 import cv2
-import numpy as np
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sahi import AutoDetectionModel
