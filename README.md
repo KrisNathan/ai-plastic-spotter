@@ -2,6 +2,12 @@
 
 Stored using git-lfs
 
+### BePLi Dataset v1: Beach Plastic Litter Dataset version 1
+
+https://www.seanoe.org/data/00811/92297/
+
+Mitsuko Hidaka, Koshiro Murakami, Kenta Koshidawa, Shintaro Kawahara, Daisuke Sugiyama, Shin’ichiro Kako, Daisuke Matsuoka (2023). BePLi Dataset v1: Beach Plastic Litter Dataset version 1. SEANOE. https://doi.org/10.17882/92297
+
 ### RealWaste
 
 https://archive.ics.uci.edu/static/public/908/realwaste.zip
@@ -28,13 +34,12 @@ A full-stack web application that uses AI to identify trash and provide recyclin
 
 ## 🌟 Features
 
--   **Instant Identification**: Uses a custom-trained YOLOv8 model to classify waste into categories (Plastic, Glass, Metal, etc.).
--   **Smart Recycling Advice**: Integrates with Google's Gemini 2.5 Flash Lite to generate specific disposal instructions and interesting facts.
+-   **Instant Identification**: Uses a custom-trained YOLO11 model with SAHI (Slicing Aided Hyper Inference) to detect even small waste items with high accuracy.
 -   **Modern UI**: Features a premium, dark-themed drag-and-drop interface built with React and Tailwind CSS v4.
 
 ## 🛠️ Tech Stack
 
--   **Backend**: FastAPI, Python, Ultralytics YOLO, Google Generative AI
+-   **Backend**: FastAPI, Python, Ultralytics YOLO11, SAHI
 -   **Frontend**: React, TypeScript, Vite, Tailwind CSS
 -   **Package Managers**: `uv` (Python), `npm` (Node.js)
 
@@ -44,7 +49,6 @@ A full-stack web application that uses AI to identify trash and provide recyclin
 
 -   Python 3.8+
 -   Node.js 18+
--   A Google Gemini API Key
 
 ### 1. Backend Setup
 
@@ -53,12 +57,6 @@ Navigate to the backend directory and install dependencies using `uv`:
 ```bash
 cd backend
 # The dependencies will be automatically installed when you run the app
-```
-
-Create a `.env` file in the `backend/` directory:
-
-```env
-GEMINI_API_KEY=your_actual_api_key_here
 ```
 
 Start the backend server:
@@ -88,6 +86,6 @@ Open your browser to `http://localhost:5173` to use the app!
 
 ## 📁 Project Structure
 
--   `backend/`: FastAPI application, YOLO model (`model.pt`), and logic.
+-   `backend/`: FastAPI application, YOLO model, and logic.
 -   `frontend/`: React application with Tailwind styling.
 -   `ai-plastic-spotter/`: Original model training notebooks and data (reference).
