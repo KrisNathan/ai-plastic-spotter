@@ -24,9 +24,9 @@ app.add_middleware(
 )
 
 # Load YOLO model
-MODEL_PATH = Path("best.pt")
+MODEL_PATH = Path("best.onnx")
 if not MODEL_PATH.exists():
-    raise RuntimeError("Model file not found at backend/best.pt")
+    raise RuntimeError("Model file not found at backend")
     # best is v1_11l_e75_sz1440_b16; bester is 11l-seg-sliced-640-p2
 
 detection_model = AutoDetectionModel.from_pretrained(
