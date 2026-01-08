@@ -1,9 +1,11 @@
 import os
 import shutil
+import base64
+import cv2
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from ultralytics import YOLO
-import google.generativeai as genai
+from sahi import AutoDetectionModel
+from sahi.predict import get_sliced_prediction
 from pathlib import Path
 import tempfile
 from dotenv import load_dotenv
@@ -15,98 +17,78 @@ app = FastAPI()
 # CORS setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for dev
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Load YOLO model
-MODEL_PATH = Path("model.pt")
+MODEL_PATH = Path("best.onnx")
 if not MODEL_PATH.exists():
-    raise RuntimeError("Model file not found at backend/model.pt")
+    raise RuntimeError("Model file not found at backend")
+    # best is v1_11l_e75_sz1440_b16; bester is 11l-seg-sliced-640-p2
 
-model = YOLO(MODEL_PATH)
-
-# Gemini setup
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-else:
-    print("Warning: GEMINI_API_KEY not set. Gemini features will fail.")
+detection_model = AutoDetectionModel.from_pretrained(
+    model_type='yolo11', 
+    model_path=str(MODEL_PATH),
+    confidence_threshold=0.4, 
+    device="cuda"  
+)
 
 @app.post("/analyze")
 async def analyze_image(file: UploadFile = File(...)):
-    # Save uploaded file temporarily
+    # save uploaded file 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name
 
     try:
-        # 1. Run YOLO Inference
-        results = model(tmp_path)
+        # sliced Prediction
+        result = get_sliced_prediction(
+            tmp_path,
+            detection_model,
+            slice_height=1440,
+            slice_width=1440,
+            overlap_height_ratio=0.2,
+            overlap_width_ratio=0.2
+        )
         
-        # Get the top prediction
-        probs = results[0].probs
-        top1_index = probs.top1
-        predicted_class = results[0].names[top1_index]
-        confidence = probs.top1conf.item()
-
-        print(f"Detected: {predicted_class} ({confidence:.2f})")
-
-        # 2. Call Gemini API
-        gemini_response = {"description": "Gemini API Key missing", "action": "N/A"}
+        plastic_count = len(result.object_prediction_list)
         
-        if GEMINI_API_KEY:
-            try:
-                generation_config = {
-                    "temperature": 0.7,
-                    "top_p": 0.95,
-                    "top_k": 40,
-                    "max_output_tokens": 8192,
-                    "response_mime_type": "application/json",
-                }
-                model_gemini = genai.GenerativeModel(
-                    model_name="gemini-2.5-flash-lite",
-                    generation_config=generation_config,
-                )
-                
-                prompt = f"""
-                I have identified a piece of trash as '{predicted_class}'.
-                Please provide a structured JSON response with two fields:
-                1. "description": A brief, interesting fact about this type of waste (max 2 sentences).
-                2. "action": Specific instructions on how to properly dispose of or recycle this category of waste.
-                
-                Output JSON only.
-                """
-                
-                response = model_gemini.generate_content(prompt)
-                gemini_response = response.text
-                # Clean up json string if needed (sometimes it includes ```json ... ```)
-                if gemini_response.startswith("```json"):
-                    gemini_response = gemini_response[7:-3]
-                
-                import json
-                gemini_response = json.loads(gemini_response)
-
-            except Exception as e:
-                print(f"Gemini Error: {e}")
-                # Return a cleaner error for the UI
-                gemini_response = {
-                    "description": "Could not retrieve info from Gemini (Rate Limit or Model Error).",
-                    "action": "Please try again in a few moments."
-                }
+        # save 
+        # export the visualization to a real file first.
+        # use temp dir for output to avoid cluttering main folder
+        with tempfile.TemporaryDirectory() as output_dir:
+            stem = Path(tmp_path).stem
+            result.export_visuals(
+                export_dir=output_dir, 
+                file_name=stem, 
+                hide_labels=True, 
+                hide_conf=True
+            )
+            
+            saved_file_path = os.path.join(output_dir, stem + ".png")
+            
+            if os.path.exists(saved_file_path):
+                 with open(saved_file_path, "rb") as image_file:
+                    png_as_text = base64.b64encode(image_file.read()).decode('utf-8')
+                    base64_image = f"data:image/png;base64,{png_as_text}"
+            else:
+                 with open(tmp_path, "rb") as image_file:
+                     im_bgr = cv2.imread(tmp_path)
+                     _, buffer = cv2.imencode('.png', im_bgr)
+                     png_as_text = base64.b64encode(buffer).decode('utf-8')
+                     base64_image = f"data:image/png;base64,{png_as_text}"
 
         return {
-            "label": predicted_class,
-            "confidence": confidence,
-            "gemini": gemini_response
+            "count": plastic_count,
+            "image": base64_image
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        # Cleanup temp file
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
 
