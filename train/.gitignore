@@ -12,8 +12,11 @@ wheels/
 datasets/
 runs/
 
-yolov8n-cls.pt
+*.pt
 
-yolov8n.pt
 plastic_coco/
 plastic_project/
+
+*.tar.gz
+*.tar.zst
+*.zip
